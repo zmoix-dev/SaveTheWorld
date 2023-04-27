@@ -58,6 +58,7 @@ public class CollisionHandler : MonoBehaviour
     private void StartCrashSequence() {
         gameObject.GetComponent<PlayerControls>().enabled = false;
         PlayCrashAssets();
+        HidePlayerModel();
         Invoke("ReloadLevel", 1f);
         levelResolved = true;
     }
@@ -76,6 +77,7 @@ public class CollisionHandler : MonoBehaviour
     private void StartVictorySequence() {
         gameObject.GetComponent<PlayerControls>().enabled = false;
         PlayClearAssets();
+        HidePlayerModel();
         Invoke("LoadNextLevel", 1f);
         levelResolved = true;
     }
@@ -89,5 +91,15 @@ public class CollisionHandler : MonoBehaviour
     private void LoadNextLevel() {
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(++currentSceneIndex);
+    }
+
+    private void HidePlayerModel() {
+        MeshRenderer[] renderers = gameObject.GetComponentsInChildren<MeshRenderer>();
+        foreach (MeshRenderer r in renderers) {
+            r.enabled = false;
+        }
+        // turn off movement so the camera doesn't keep moving
+        body.freezeRotation = true;
+        body.useGravity = false;
     }
 }
