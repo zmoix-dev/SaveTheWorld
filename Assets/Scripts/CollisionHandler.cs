@@ -6,21 +6,38 @@ public class CollisionHandler : MonoBehaviour
 
     [SerializeField] AudioClip crashClip;
     [SerializeField] AudioClip clearClip;
+    [SerializeField] ParticleSystem clearParticles;
+    [SerializeField] ParticleSystem crashParticles;
 
     Rigidbody body;
     private AudioSource audioSrc;
 
     bool levelResolved;
+    bool ignoreCollision;
     
 
     void Start() {
         body = GetComponent<Rigidbody>();
         audioSrc = GetComponent<AudioSource>();
         levelResolved = false;
+        ignoreCollision = false;
+    }
+
+    void Update()
+    {
+        ToggleCollision();
+    }
+
+    private void ToggleCollision()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            ignoreCollision = !ignoreCollision;
+        }
     }
 
     void OnCollisionEnter(Collision other) {
-        if(levelResolved) {
+        if(levelResolved || ignoreCollision) {
             return;
         }
         
@@ -40,14 +57,15 @@ public class CollisionHandler : MonoBehaviour
 
     private void StartCrashSequence() {
         gameObject.GetComponent<PlayerControls>().enabled = false;
-        PlayCrashSound();
+        PlayCrashAssets();
         Invoke("ReloadLevel", 1f);
         levelResolved = true;
     }
 
-    private void PlayCrashSound() {
+    private void PlayCrashAssets() {
         audioSrc.Stop();
         audioSrc.PlayOneShot(crashClip);
+        crashParticles.Play();
     }
 
     private void ReloadLevel() {
@@ -57,14 +75,15 @@ public class CollisionHandler : MonoBehaviour
 
     private void StartVictorySequence() {
         gameObject.GetComponent<PlayerControls>().enabled = false;
-        PlayVictorySound();
+        PlayClearAssets();
         Invoke("LoadNextLevel", 1f);
         levelResolved = true;
     }
 
-    private void PlayVictorySound() {
+    private void PlayClearAssets() {
         audioSrc.Stop();
         audioSrc.PlayOneShot(clearClip);
+        clearParticles.Play();
     }
 
     private void LoadNextLevel() {
